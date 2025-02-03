@@ -3,10 +3,9 @@ import { config } from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
 import bodyParser from "body-parser";
-
+import { errorMiddleware } from "./middlewares/error.middleware";
+import { app, server } from "./socket";
 config();
-
-const app = express();
 
 app.use(
   cors({
@@ -27,8 +26,10 @@ app.get("/", (req, res) => {
   res.json({ message: "Hello World", success: true });
 });
 
+app.use(errorMiddleware);
+
 const PORT = process.env.PORT || 8000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);
 });
