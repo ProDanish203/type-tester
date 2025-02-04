@@ -16,18 +16,18 @@ export const getRecipientSocketId = (recipientId: string) => {
   return userSocketMap[recipientId];
 };
 
-const userSocketMap: Record<string, string> = {}; // userId: socketId
+const userSocketMap: Record<string, string> = {}; // username: socketId
 
 io.on("connection", (socket) => {
-  const userId = socket.handshake.query.userId as string | undefined;
-  if (!userId) return;
-  if (userId) userSocketMap[userId] = socket.id;
+  const username = socket.handshake.query.username as string | undefined;
+  if (!username) return;
+  if (username) userSocketMap[username] = socket.id;
   // Send online users data to client
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   // Handle the disconnect event from client
   socket.on("disconnect", () => {
-    delete userSocketMap[userId];
+    delete userSocketMap[username];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });

@@ -3,6 +3,7 @@ import { Poppins, Roboto } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
+import { SocketProvider } from "@/store/SocketProvider";
 
 const poppins = Poppins({
   weight: ["200", "300", "400", "500", "600", "700", "800"],
@@ -33,7 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={cn("antialiased", poppins.className, roboto.variable)}>
         <Toaster richColors position="top-right" />
-        {children}
+        <SocketProvider>{children}</SocketProvider>
       </body>
     </html>
   );
