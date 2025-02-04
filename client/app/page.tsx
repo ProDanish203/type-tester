@@ -1,19 +1,23 @@
 "use client";
+import { MultiplayerModal } from "@/components/shared/MultiplayerModal";
 import { Results } from "@/components/shared/Results";
 import { UserTyping } from "@/components/shared/UserTyping";
 import { Button } from "@/components/ui/button";
 import { useEngine } from "@/hooks";
 import { calculateAccuracyPercentage } from "@/lib/helpers";
 import { RotateCw } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export default function Home() {
   const { state, words, timeLeft, typed, wpm, totalTyped, errors, restart } =
     useEngine();
 
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
     <main className="min-h-screen w-full flex items-center justify-center lg:px-10 md:px-5 px-4 bg-bgCol text-text">
       <div className="container">
+        <MultiplayerModal open={modalOpen} setOpen={setModalOpen} />
         <div className="flex items-center justify-between mb-4">
           <CountdownTimer timeLeft={timeLeft} />
           <RestartButton handleReset={restart} />
