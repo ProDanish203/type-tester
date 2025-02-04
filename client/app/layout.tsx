@@ -31,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className={cn("antialiased", poppins.className, roboto.variable)}>
         <Toaster richColors position="top-right" />
         <SocketProvider>{children}</SocketProvider>

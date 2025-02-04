@@ -17,7 +17,9 @@ export default function Home() {
   return (
     <main className="min-h-screen w-full flex items-center justify-center lg:px-10 md:px-5 px-4 bg-bgCol text-text">
       <div className="container">
-        <MultiplayerModal open={modalOpen} setOpen={setModalOpen} />
+        <div className="flex justify-end w-full mb-10">
+          <MultiplayerModal open={modalOpen} setOpen={setModalOpen} />
+        </div>
         <div className="flex items-center justify-between mb-4">
           <CountdownTimer timeLeft={timeLeft} />
           <RestartButton handleReset={restart} />

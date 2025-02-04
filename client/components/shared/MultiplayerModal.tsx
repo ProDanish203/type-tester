@@ -30,43 +30,43 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
     <Dialog open={open} onOpenChange={setOpen} defaultOpen={false}>
       <DialogTrigger
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-md cursor-pointer"
       >
         <ArrowRightLeft size={14} />
         <span>Switch to Multiplayer</span>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Multiplayer</DialogTitle>
+          <DialogTitle className="flex items-center justify-between gap-2 w-full">
+            <span>Join Multiplayer</span>
+            <Badge className="bg-green-500 hover:bg-green-600 flex gap-x-2 py-2 rounded-full">
+              <span>100</span> Online Users
+            </Badge>
+          </DialogTitle>
           <DialogDescription>
-            <div className="flex items-center justify-between gap-2 w-full">
-              Join a game with your friends or random players all over the
-              globe.
-              <Badge className="bg-green-500">
-                <span>100</span> Online Users
-              </Badge>
-            </div>
+            Join a game with your friends or random players all over the globe.
           </DialogDescription>
         </DialogHeader>
-        <form>
-          <div className="flex gap-y-2 flex-col justify-center">
+        <form className="flex flex-col gap-4">
+          <div className="flex gap-y-3 flex-col justify-center">
             <Label htmlFor="username">Enter Username</Label>
             <Input id="username" required minLength={1} maxLength={30} />
           </div>
 
-          <div className="flex gap-y-2 flex-col justify-center">
+          <div className="flex gap-y-3 flex-col justify-center">
             <Label htmlFor="roomId">Enter Room Id</Label>
             <Input id="roomId" required minLength={1} maxLength={30} />
           </div>
 
           <Separator />
-
-          <div className="flex gap-y-2 flex-col justify-center">
-            <Label htmlFor="createRoom">Create New Room</Label>
-            <Button variant={"secondary"}>Create</Button>
+          <p className="text-center text-lg">OR</p>
+          <div className="flex gap-y-3 flex-col justify-center">
+            <Button variant={"secondary"} className="mb-2">
+              Create New Room
+            </Button>
           </div>
 
-          <div className="flex items-center gap-x-2">
+          <div className="flex items-center justify-end gap-x-2 mt-2">
             <DialogClose
               className={cn(buttonVariants({ variant: "destructive" }))}
             >
