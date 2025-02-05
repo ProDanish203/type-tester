@@ -8,3 +8,7 @@ export const throwError = (
   error.statusCode = statusCode || 500;
   return error;
 };
+
+export const generateUniqueRoomId = (): string => {
+  return Math.random().toString(36).substring(2, 9);
+};
