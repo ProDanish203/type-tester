@@ -29,7 +29,7 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
   open,
   setOpen,
 }) => {
-  const { onlineUsers, socket } = useSocket();
+  const { onlineUsers, socket, setJoinedUsers } = useSocket();
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [roomId, setRoomId] = useState("");
@@ -40,7 +40,6 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
     const storedUsername = localStorage.getItem("username");
     setUsername(storedUsername || "");
   }, []);
-  console.log("onlineUsers", onlineUsers);
 
   const saveUsername = (e: FormEvent) => {
     e.preventDefault();
@@ -51,6 +50,23 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
     setCurrentStep(1);
   };
 
+  const handleUserJoined = (data: { roomId: string; username: string }) => {
+    if (typeof window === "undefined") return;
+    const { username, roomId } = data;
+    const storedUsername = localStorage.getItem("username");
+    setJoinedUsers((prev: string) => {
+      if (storedUsername !== username && !prev.includes(username)) {
+        toast.success(`${username} joined the room. Let's play!`, {
+          id: username,
+        });
+        return [...prev, username];
+      }
+      return prev;
+    });
+
+    router.push(`/multiplayer/${roomId}`);
+  };
+
   const handleJoinRoom = (e: FormEvent) => {
     e.preventDefault();
     try {
@@ -59,20 +75,9 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
         return toast.error("Please fill in all fields.");
 
       router.push(`/multiplayer/${roomId}`);
-      // // This code will come on the multiplayer page
 
-      // socket.emit("joinRoom", { roomId });
-      // socket.on(
-      //   "userJoinedRoom",
-      //   (data: { roomId: string; username: string }) => {
-      //     const { roomId, username } = data;
-      //     console.log("Room joined", data);
-      //     localStorage.setItem("username", username);
-      //     localStorage.setItem("roomId", roomId);
-      //     setUsername(username);
-      //     setRoomId(roomId);
-      //   }
-      // );
+      socket.emit("joinRoom", { roomId, username });
+      socket.on("userJoinedRoom", handleUserJoined);
     } catch (err) {
       toast.error("An error occurred. Please try again later.");
       console.log(err);
@@ -87,8 +92,6 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
       const { roomId, username } = data;
       localStorage.setItem("username", username);
       localStorage.setItem("roomId", roomId);
-      setRoomId(roomId);
-      setUsername(username);
       router.push(`/multiplayer/${roomId}`);
     });
   };

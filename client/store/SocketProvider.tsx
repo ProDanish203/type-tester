@@ -11,6 +11,8 @@ import io, { Socket } from "socket.io-client";
 interface SocketContextValue {
   socket: Socket | null;
   onlineUsers: string[];
+  joinedUsers: string[];
+  setJoinedUsers: any;
 }
 
 const SocketContext = createContext<SocketContextValue | undefined>(undefined);
@@ -18,6 +20,8 @@ const SocketContext = createContext<SocketContextValue | undefined>(undefined);
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [joinedUsers, setJoinedUsers] = useState<string[]>([]);
+
   const username: string | null =
     typeof window !== "undefined" ? localStorage.getItem("username") : null;
 
@@ -40,6 +44,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const value = {
     socket,
     onlineUsers,
+    joinedUsers,
+    setJoinedUsers,
   };
 
   return (
