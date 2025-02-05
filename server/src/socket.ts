@@ -18,16 +18,15 @@ export const getRecipientSocketId = (recipientId: string) => {
 };
 
 const userSocketMap: Record<string, string> = {}; // username: socketId
-
 io.on("connection", (socket) => {
   const username = socket.handshake.query.username as string | undefined;
-  if (!username) return;
   if (username) userSocketMap[username] = socket.id;
   // Send online users data to client
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   // Create a room for the user, new game
-  socket.on("createRoom", () => {
+  socket.on("createRoom", (data: { username?: string }) => {
+    const { username } = data;
     const roomId = generateUniqueRoomId();
     socket.join(roomId);
 
@@ -39,7 +38,6 @@ io.on("connection", (socket) => {
     const { roomId } = data;
 
     const currentRooms = Array.from(socket.rooms);
-
     // Leave any joined rooms
     currentRooms.forEach((room) => {
       if (room !== socket.id) socket.leave(room);
@@ -55,7 +53,7 @@ io.on("connection", (socket) => {
 
   // Handle the disconnect event from client
   socket.on("disconnect", () => {
-    delete userSocketMap[username];
+    username && delete userSocketMap[username];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });

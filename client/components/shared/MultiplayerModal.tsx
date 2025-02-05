@@ -1,5 +1,5 @@
 "use client";
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import {
   Dialog,
   DialogHeader,
@@ -16,6 +16,9 @@ import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
 import { Button, buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
+import { useSocket } from "@/store/SocketProvider";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface MultiplayerModalProps {
   open: boolean;
@@ -26,21 +29,72 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
   open,
   setOpen,
 }) => {
+  const { onlineUsers, socket } = useSocket();
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [roomId, setRoomId] = useState("");
+  const [currentStep, setCurrentStep] = useState(0);
 
-  const handleSubmit = (e: FormEvent) => {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const storedUsername = localStorage.getItem("username");
+    setUsername(storedUsername || "");
+  }, []);
+  console.log("onlineUsers", onlineUsers);
+
+  const saveUsername = (e: FormEvent) => {
+    e.preventDefault();
+    if (typeof window === "undefined") return;
+    if (!username) return toast.error("Please enter a username.");
+
+    localStorage.setItem("username", username);
+    setCurrentStep(1);
+  };
+
+  const handleJoinRoom = (e: FormEvent) => {
     e.preventDefault();
     try {
+      if (typeof window === "undefined" || !socket) return;
+      if (!username || !roomId)
+        return toast.error("Please fill in all fields.");
+
+      router.push(`/multiplayer/${roomId}`);
+      // // This code will come on the multiplayer page
+
+      // socket.emit("joinRoom", { roomId });
+      // socket.on(
+      //   "userJoinedRoom",
+      //   (data: { roomId: string; username: string }) => {
+      //     const { roomId, username } = data;
+      //     console.log("Room joined", data);
+      //     localStorage.setItem("username", username);
+      //     localStorage.setItem("roomId", roomId);
+      //     setUsername(username);
+      //     setRoomId(roomId);
+      //   }
+      // );
     } catch (err) {
+      toast.error("An error occurred. Please try again later.");
       console.log(err);
     }
   };
 
-  const handleCreateRoom = () => {};
+  const handleCreateRoom = () => {
+    if (!socket || !username) return;
+    socket.emit("createRoom", { username });
+
+    socket.on("roomCreated", (data: { roomId: string; username: string }) => {
+      const { roomId, username } = data;
+      localStorage.setItem("username", username);
+      localStorage.setItem("roomId", roomId);
+      setRoomId(roomId);
+      setUsername(username);
+      router.push(`/multiplayer/${roomId}`);
+    });
+  };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} defaultOpen={false}>
+    <Dialog open={true} onOpenChange={setOpen} defaultOpen={false}>
       <DialogTrigger
         onClick={() => setOpen(true)}
         className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-md cursor-pointer"
@@ -52,67 +106,97 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between gap-2 w-full">
             <span>Join Multiplayer</span>
-            <Badge className="bg-green-500 hover:bg-green-600 flex gap-x-2 py-2 rounded-full">
-              <span>100</span> Online Users
+            <Badge className="bg-green-500 hover:bg-green-600 flex gap-x-1 py-2 rounded-full">
+              <span className="font-bold">{onlineUsers.length}</span> Online{" "}
+              {onlineUsers.length > 1 ? "Players" : "Player"}
             </Badge>
           </DialogTitle>
           <DialogDescription>
             Join a game with your friends or random players all over the globe.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex gap-y-3 flex-col justify-center">
-            <Label htmlFor="username">Enter Username</Label>
-            <Input
-              id="username"
-              required
-              value={username}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setUsername(e.target.value)
-              }
-              minLength={1}
-              maxLength={30}
-            />
-          </div>
+        {currentStep === 0 ? (
+          <form onSubmit={saveUsername} className="flex flex-col gap-4">
+            <div className="flex gap-y-3 flex-col justify-center">
+              <Label htmlFor="username">Enter Username</Label>
+              <Input
+                id="username"
+                required
+                value={username}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setUsername(e.target.value)
+                }
+                minLength={1}
+                maxLength={30}
+              />
+            </div>
 
-          <div className="flex gap-y-3 flex-col justify-center">
-            <Label htmlFor="roomId">Enter Room Id</Label>
-            <Input
-              id="roomId"
-              required
-              value={roomId}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setRoomId(e.target.value)
-              }
-              minLength={1}
-              maxLength={30}
-            />
-          </div>
+            <div className="flex items-center justify-end gap-x-2 mt-2">
+              <DialogClose
+                type="button"
+                className={cn(buttonVariants({ variant: "destructive" }))}
+              >
+                Cancel
+              </DialogClose>
 
-          <Separator />
-          <p className="text-center text-lg">OR</p>
-          <div className="flex gap-y-3 flex-col justify-center">
-            <Button
-              type="button"
-              onClick={handleCreateRoom}
-              variant={"secondary"}
-              className="mb-2"
-            >
-              Create New Room
-            </Button>
-          </div>
+              <Button type="submit">Next</Button>
+            </div>
+          </form>
+        ) : currentStep === 1 ? (
+          <form onSubmit={handleJoinRoom} className="flex flex-col gap-4">
+            <div className="flex gap-y-3 flex-col justify-center">
+              <Label htmlFor="username">Enter Username</Label>
+              <Input
+                id="username"
+                required
+                value={username}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setUsername(e.target.value)
+                }
+                minLength={1}
+                maxLength={30}
+              />
+            </div>
 
-          <div className="flex items-center justify-end gap-x-2 mt-2">
-            <DialogClose
-              type="button"
-              className={cn(buttonVariants({ variant: "destructive" }))}
-            >
-              Cancel
-            </DialogClose>
+            <div className="flex gap-y-3 flex-col justify-center">
+              <Label htmlFor="roomId">Enter Room Id</Label>
+              <Input
+                id="roomId"
+                required
+                value={roomId}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setRoomId(e.target.value)
+                }
+                minLength={1}
+                maxLength={30}
+              />
+            </div>
 
-            <Button type="submit">Join Room</Button>
-          </div>
-        </form>
+            <Separator />
+            <p className="text-center text-lg">OR</p>
+            <div className="flex gap-y-3 flex-col justify-center">
+              <Button
+                type="button"
+                onClick={handleCreateRoom}
+                variant={"secondary"}
+                className="mb-2"
+              >
+                Create New Room
+              </Button>
+            </div>
+
+            <div className="flex items-center justify-end gap-x-2 mt-2">
+              <DialogClose
+                type="button"
+                className={cn(buttonVariants({ variant: "destructive" }))}
+              >
+                Cancel
+              </DialogClose>
+
+              <Button type="submit">Join Room</Button>
+            </div>
+          </form>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

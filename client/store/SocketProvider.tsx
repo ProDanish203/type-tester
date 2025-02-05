@@ -23,7 +23,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const newSocket: Socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL!, {
-      query: { username },
+      query: { username: username || "" },
     });
 
     setSocket(newSocket);
