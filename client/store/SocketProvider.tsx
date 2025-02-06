@@ -13,6 +13,8 @@ interface SocketContextValue {
   onlineUsers: string[];
   joinedUsers: string[];
   setJoinedUsers: any;
+  players: string[];
+  setPlayers: any;
 }
 
 const SocketContext = createContext<SocketContextValue | undefined>(undefined);
@@ -21,6 +23,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [joinedUsers, setJoinedUsers] = useState<string[]>([]);
+  const [players, setPlayers] = useState<string[]>([]);
 
   const username: string | null =
     typeof window !== "undefined" ? localStorage.getItem("username") : null;
@@ -33,7 +36,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     setSocket(newSocket);
 
     newSocket.on("getOnlineUsers", (users) => {
-      setOnlineUsers(users);
+      const onlineUsers = username
+        ? users.filter((user: string) => user !== username)
+        : users;
+      setOnlineUsers(onlineUsers);
     });
 
     return () => {
@@ -46,6 +52,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     onlineUsers,
     joinedUsers,
     setJoinedUsers,
+    players,
+    setPlayers,
   };
 
   return (

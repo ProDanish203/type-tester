@@ -47,9 +47,24 @@ io.on("connection", (socket) => {
 
     // Join the new room
     socket.join(roomId);
+    // Get all the users in the room
+    const usersInRoom = io.sockets.adapter.rooms.get(roomId);
+    const usersInRoomArray = usersInRoom ? Array.from(usersInRoom) : [];
 
-    io.to(roomId).emit("userJoinedRoom", { roomId, username });
+    const usersInRoomWithUsername = usersInRoomArray.map((socketId) => {
+      return Object.keys(userSocketMap).find(
+        (username) => userSocketMap[username] === socketId
+      );
+    });
+
+    io.to(roomId).emit("userJoinedRoom", {
+      roomId,
+      username,
+      usersInRoom: usersInRoomWithUsername,
+    });
   });
+
+  // Get the current game state
 
   // Handle events within the game for the room
 

@@ -29,7 +29,7 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
   open,
   setOpen,
 }) => {
-  const { onlineUsers, socket, setJoinedUsers } = useSocket();
+  const { onlineUsers, socket, setJoinedUsers, setPlayers } = useSocket();
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [roomId, setRoomId] = useState("");
@@ -50,9 +50,15 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
     setCurrentStep(1);
   };
 
-  const handleUserJoined = (data: { roomId: string; username: string }) => {
+  const handleUserJoined = (data: {
+    roomId: string;
+    username: string;
+    usersInRoom: string[];
+  }) => {
     if (typeof window === "undefined") return;
-    const { username, roomId } = data;
+    const { username, roomId, usersInRoom } = data;
+    setPlayers(usersInRoom);
+
     const storedUsername = localStorage.getItem("username");
     setJoinedUsers((prev: string) => {
       if (storedUsername !== username && !prev.includes(username)) {
@@ -73,7 +79,7 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
       if (typeof window === "undefined" || !socket) return;
       if (!username || !roomId)
         return toast.error("Please fill in all fields.");
-
+      localStorage.setItem("roomId", roomId);
       router.push(`/multiplayer/${roomId}`);
 
       socket.emit("joinRoom", { roomId, username });
@@ -92,6 +98,7 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
       const { roomId, username } = data;
       localStorage.setItem("username", username);
       localStorage.setItem("roomId", roomId);
+      setPlayers([username]);
       router.push(`/multiplayer/${roomId}`);
     });
   };
