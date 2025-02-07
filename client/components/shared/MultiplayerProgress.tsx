@@ -1,13 +1,10 @@
 import { cn } from "@/lib/utils";
-import { div } from "framer-motion/client";
 import Image from "next/image";
 import React from "react";
 
 interface MultiplayerProgressProps {
   players: { username: string; score: number }[];
 }
-
-const carImages = ["/images/car-1.png", "/images/car-2.png"];
 
 export const MultiplayerProgress: React.FC<MultiplayerProgressProps> = ({
   players,
@@ -16,26 +13,26 @@ export const MultiplayerProgress: React.FC<MultiplayerProgressProps> = ({
     // The track width is considered 100%
     // Convert score to a percentage of track width
     // If score is 100, car should be at the end of track
-    const progressPercentage = score;
+    const progressPercentage = score <= 10 ? 10 : score;
 
     // Calculate left position (start from left side)
     // As score increases, left position decreases
     const leftPosition = 100 - progressPercentage;
 
     return {
-      left: `${leftPosition}%`,
+      left: `${leftPosition - 2}%`,
     };
   };
 
   return (
-    <div className="relative w-full ">
+    <div className="relative w-full overflow-x-clip">
       {/* Track */}
       <Image
         src={"/images/track.jpg"}
         alt="track-img"
         width={500}
         height={400}
-        className="w-full max-h-[350px] rounded-md"
+        className="w-full max-h-[350px] rounded-md select-none"
       />
       {/* Cars */}
       {players.map((player, index) => (
@@ -52,6 +49,7 @@ export const MultiplayerProgress: React.FC<MultiplayerProgressProps> = ({
             alt={player.username}
             width={100}
             height={150}
+            className="select-none min-w-[100px]"
           />
           <PlayerLabel
             username={player.username}
@@ -59,26 +57,6 @@ export const MultiplayerProgress: React.FC<MultiplayerProgressProps> = ({
           />
         </div>
       ))}
-      {/* <div className="absolute bottom-8 right-0">
-        <Image
-          src={"/images/car-1.png"}
-          alt="Danish"
-          width={100}
-          height={150}
-          className=""
-        />
-        <PlayerLabel username="Danish" className="right-4" />
-      </div>
-      <div className="absolute bottom-20 right-0">
-        <Image
-          src={"/images/car-2.png"}
-          alt="Danish"
-          width={100}
-          height={150}
-          className=""
-        />
-        <PlayerLabel username="Mustafa" className="-top-7 right-4" />
-      </div> */}
     </div>
   );
 };

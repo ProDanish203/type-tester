@@ -15,10 +15,11 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
 import { Button, buttonVariants } from "../ui/button";
-import { cn } from "@/lib/utils";
+import { cn, getUsername } from "@/lib/utils";
 import { useSocket } from "@/store/SocketProvider";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { GameState } from "@/types/types";
 
 interface MultiplayerModalProps {
   open: boolean;
@@ -29,7 +30,8 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
   open,
   setOpen,
 }) => {
-  const { onlineUsers, socket, setJoinedUsers, setPlayers } = useSocket();
+  const { onlineUsers, socket, setJoinedUsers, setPlayers, setGameState } =
+    useSocket();
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [roomId, setRoomId] = useState("");
@@ -37,7 +39,7 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const storedUsername = localStorage.getItem("username");
+    const storedUsername = getUsername();
     setUsername(storedUsername || "");
   }, []);
 
@@ -54,12 +56,14 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
     roomId: string;
     username: string;
     usersInRoom: string[];
+    gameState: GameState;
   }) => {
     if (typeof window === "undefined") return;
-    const { username, roomId, usersInRoom } = data;
+    const { username, roomId, usersInRoom, gameState } = data;
     setPlayers(usersInRoom);
+    setGameState(gameState);
 
-    const storedUsername = localStorage.getItem("username");
+    const storedUsername = getUsername();
     setJoinedUsers((prev: string) => {
       if (storedUsername !== username && !prev.includes(username)) {
         toast.success(`${username} joined the room. Let's play!`, {
