@@ -1,13 +1,20 @@
 "use client";
 import { MultiplayerProgress } from "@/components/shared/MultiplayerProgress";
 import { Button } from "@/components/ui/button";
+import { getRoomId, getUsername } from "@/lib/utils";
 import { useSocket } from "@/store/SocketProvider";
 import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { MultiplayerGame } from "./_components/MultiplayerGame";
 
 interface MultiplayerPageClientProps {
   roomId: string;
+}
+
+interface PlayersProgress {
+  username: string;
+  score: number;
 }
 
 const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
@@ -15,33 +22,41 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
 }) => {
   const {
     socket,
-    onlineUsers,
-    joinedUsers,
     setPlayers,
     players,
     setJoinedUsers,
+    gameState,
+    setGameState,
   } = useSocket();
   const router = useRouter();
+  const [playersProgress, setPlayersProgresss] = useState<PlayersProgress[]>(
+    []
+  );
 
-  const handleUserJoined = (data: {
-    roomId: string;
-    username: string;
-    usersInRoom: string[];
-  }) => {
-    const { username, usersInRoom } = data;
-    const storedUsername = localStorage.getItem("username");
+  const handleUserJoined = useCallback(
+    (data: {
+      roomId: string;
+      username: string;
+      usersInRoom: string[];
+      gameState: any;
+    }) => {
+      const { username, usersInRoom, gameState } = data;
+      const storedUsername = getUsername();
 
-    setPlayers(usersInRoom);
-    setJoinedUsers((prev: string) => {
-      if (storedUsername !== username && !prev.includes(username)) {
-        toast.success(`${username} joined the room. Let's play!`, {
-          id: username,
-        });
-        return [...prev, username];
-      }
-      return prev;
-    });
-  };
+      setPlayers(usersInRoom);
+      setGameState(gameState);
+      setJoinedUsers((prev: string) => {
+        if (storedUsername !== username && !prev.includes(username)) {
+          toast.success(`${username} joined the room. Let's play!`, {
+            id: username,
+          });
+          return [...prev, username];
+        }
+        return prev;
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     if (typeof window === "undefined" || !socket) return;
@@ -54,8 +69,11 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
 
   const leaveRoom = () => {
     if (typeof window === "undefined" || !socket) return;
-    const storedUsername = localStorage.getItem("username");
-    const storedRoomId = localStorage.getItem("roomId");
+    const storedUsername = getUsername();
+    const storedRoomId = getRoomId();
+    setGameState(null);
+    setJoinedUsers([]);
+    setPlayers([]);
 
     if (!storedUsername || !storedRoomId) return;
 
@@ -73,7 +91,7 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
   return (
     <div className="flex min-h-screen">
       {/* Sidebar to show players */}
-      <div className="md:py-4 py-8 bg-bgCol border-r-2 min-w-[250px] max-w-[250px] h-screen w-full">
+      <div className="max-md:hidden md:py-4 py-8 bg-bgCol border-r-2 min-w-[250px] max-w-[250px] h-screen w-full">
         <h2 className="md:px-6 px-4 text-xl font-medium border-b-2 pb-5 pt-1 mb-4">
           Game ID: <span className="font-bold text-primaryCol">{roomId}</span>
         </h2>
@@ -104,13 +122,14 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
         {/* Main Content */}
         <main className="px-2 py-3">
           {/* Progress */}
-          <MultiplayerProgress
-            players={[
-              { username: "Danish", score: 70 },
-              { username: "Mustafa", score: 40 },
-            ]}
-          />
+          <MultiplayerProgress players={playersProgress} />
           {/* Typing Game */}
+          {gameState && (
+            <MultiplayerGame
+              gameState={gameState}
+              setPlayersProgresss={setPlayersProgresss}
+            />
+          )}
         </main>
       </div>
     </div>

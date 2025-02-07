@@ -1,4 +1,6 @@
 "use client";
+import { getUsername } from "@/lib/utils";
+import { GameState } from "@/types/types";
 import {
   createContext,
   ReactNode,
@@ -15,6 +17,8 @@ interface SocketContextValue {
   setJoinedUsers: any;
   players: string[];
   setPlayers: any;
+  gameState: GameState | null;
+  setGameState: any;
 }
 
 const SocketContext = createContext<SocketContextValue | undefined>(undefined);
@@ -24,9 +28,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [joinedUsers, setJoinedUsers] = useState<string[]>([]);
   const [players, setPlayers] = useState<string[]>([]);
+  const [gameState, setGameState] = useState<GameState | null>(null);
 
-  const username: string | null =
-    typeof window !== "undefined" ? localStorage.getItem("username") : null;
+  const username: string | null = getUsername();
 
   useEffect(() => {
     const newSocket: Socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL!, {
@@ -54,6 +58,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     setJoinedUsers,
     players,
     setPlayers,
+    gameState,
+    setGameState,
   };
 
   return (
