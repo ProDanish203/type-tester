@@ -1,4 +1,5 @@
 "use client";
+import { MultiplayerProgress } from "@/components/shared/MultiplayerProgress";
 import { Button } from "@/components/ui/button";
 import { useSocket } from "@/store/SocketProvider";
 import { useRouter } from "next/navigation";
@@ -101,7 +102,16 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
           </Button>
         </div>
         {/* Main Content */}
-        <main className="px-2 py-3">hello</main>
+        <main className="px-2 py-3">
+          {/* Progress */}
+          <MultiplayerProgress
+            players={[
+              { username: "Danish", score: 70 },
+              { username: "Mustafa", score: 40 },
+            ]}
+          />
+          {/* Typing Game */}
+        </main>
       </div>
     </div>
   );
