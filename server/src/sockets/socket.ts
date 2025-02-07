@@ -1,7 +1,8 @@
 import express from "express";
 import { Server } from "socket.io";
 import http from "http";
-import { generateUniqueRoomId } from "./utils/helpers";
+import { generateUniqueRoomId } from "../utils/helpers";
+import { RoomManager } from "./roomManager";
 
 const app = express();
 const server = http.createServer(app);
@@ -18,6 +19,9 @@ export const getRecipientSocketId = (recipientId: string) => {
 };
 
 const userSocketMap: Record<string, string> = {}; // username: socketId
+
+const roomManager = new RoomManager();
+
 io.on("connection", (socket) => {
   const username = socket.handshake.query.username as string | undefined;
   if (username) userSocketMap[username] = socket.id;
@@ -29,15 +33,18 @@ io.on("connection", (socket) => {
     const { username } = data;
     userSocketMap[username] = socket.id;
     const roomId = generateUniqueRoomId();
+    const gameState = roomManager.createRoom(roomId);
+    roomManager.addPlayerToRoom(roomId, username);
     socket.join(roomId);
 
-    socket.emit("roomCreated", { roomId, username });
+    socket.emit("roomCreated", { roomId, username, gameState });
   });
 
   // Join a room, existing game
   socket.on("joinRoom", (data: { roomId: string; username: string }) => {
     const { roomId, username } = data;
     userSocketMap[username] = socket.id;
+    const gameState = roomManager.addPlayerToRoom(roomId, username);
 
     const currentRooms = Array.from(socket.rooms);
     // Leave any joined rooms
@@ -61,12 +68,43 @@ io.on("connection", (socket) => {
       roomId,
       username,
       usersInRoom: usersInRoomWithUsername,
+      gameState,
     });
   });
 
-  // Get the current game state
+  socket.on(
+    "playerUpdate",
+    (data: {
+      roomId: string;
+      username: string;
+      typed: string;
+      cursor: number;
+    }) => {
+      const gameState = roomManager.updatePlayerProgress(
+        data.roomId,
+        data.username,
+        data.typed,
+        data.cursor
+      );
 
-  // Handle events within the game for the room
+      if (gameState) {
+        io.to(data.roomId).emit("gameStateUpdate", { gameState });
+      }
+    }
+  );
+
+  socket.on("startGame", (data: { roomId: string }) => {
+    const gameState = roomManager.startGame(data.roomId);
+    if (gameState) {
+      io.to(data.roomId).emit("gameStarted", { gameState });
+
+      // Set up game end timeout
+      setTimeout(() => {
+        gameState.status = "finished";
+        io.to(data.roomId).emit("gameEnded", { gameState });
+      }, 60000); // 40 seconds
+    }
+  });
 
   // Handle the disconnect event from client
   socket.on("disconnect", () => {

@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@faker-js/faker": "^9.4.0",
     "body-parser": "^1.20.3",
     "concurrently": "^9.1.2",
     "cors": "^2.8.5",

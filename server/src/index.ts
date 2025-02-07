@@ -4,7 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import { errorMiddleware } from "./middlewares/error.middleware";
-import { app, server } from "./socket";
+import { app, server } from "./sockets/socket";
 config();
 
 app.use(
