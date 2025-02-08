@@ -7,6 +7,9 @@ import { RoomManager } from "./roomManager";
 const app = express();
 const server = http.createServer(app);
 
+const GAME_DURATION = 20;
+const GAME_START_DELAY = 5;
+
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
@@ -102,7 +105,7 @@ io.on("connection", (socket) => {
       setTimeout(() => {
         gameState.status = "finished";
         io.to(data.roomId).emit("gameEnded", { gameState });
-      }, 10000); // 40 seconds
+      }, (GAME_DURATION + GAME_START_DELAY) * 1000);
     }
   });
 

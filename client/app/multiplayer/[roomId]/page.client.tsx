@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MultiplayerGame } from "./_components/MultiplayerGame";
+import { GameStartingIndicator } from "@/components/shared/GameStartingIndicator";
 
 interface MultiplayerPageClientProps {
   roomId: string;
@@ -91,7 +92,7 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
   return (
     <div className="flex min-h-screen">
       {/* Sidebar to show players */}
-      <div className="max-md:hidden md:py-4 py-8 bg-bgCol border-r-2 min-w-[250px] max-w-[250px] h-screen w-full">
+      <aside className="max-md:hidden md:py-4 py-8 bg-bgCol border-r-2 min-w-[250px] max-w-[250px] h-screen w-full">
         <h2 className="md:px-6 px-4 text-xl font-medium border-b-2 pb-5 pt-1 mb-4">
           Game ID: <span className="font-bold text-primaryCol">{roomId}</span>
         </h2>
@@ -110,7 +111,7 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
             ))}
           </div>
         </div>
-      </div>
+      </aside>
 
       <div className="w-full">
         {/* Topbar */}
@@ -130,6 +131,7 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
               setPlayersProgresss={setPlayersProgresss}
             />
           )}
+          <GameStartingIndicator gameState={gameState || null} />
         </main>
       </div>
     </div>

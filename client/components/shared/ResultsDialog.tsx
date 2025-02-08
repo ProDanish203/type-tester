@@ -3,10 +3,7 @@ import {
   Dialog,
   DialogHeader,
   DialogContent,
-  DialogDescription,
   DialogTitle,
-  DialogTrigger,
-  DialogClose,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { GameState, ResultsProps } from "@/types/types";

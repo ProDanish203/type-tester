@@ -6,6 +6,7 @@ import {
 } from "@/components/shared/TypingHelpers";
 import { UserTyping } from "@/components/shared/UserTyping";
 import { useMultiplayerEngine } from "@/hooks/useMultiplayerEngine";
+import { GAME_DURATION } from "@/lib/constants";
 import { calculateAccuracyPercentage } from "@/lib/helpers";
 import { getUsername } from "@/lib/utils";
 import { GameState } from "@/types/types";
@@ -21,6 +22,8 @@ export const MultiplayerGame: React.FC<MultiplayerGameProps> = ({
   setPlayersProgresss,
 }) => {
   const [displayResults, setDisplayResults] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
+
   const username = getUsername();
   const { typed, cursor, startGame } = useMultiplayerEngine();
 
@@ -39,18 +42,32 @@ export const MultiplayerGame: React.FC<MultiplayerGameProps> = ({
   }, [updateProgress]);
 
   useEffect(() => {
-    if (gameState.status === "waiting") {
-      setTimeout(() => {
-        startGame();
-      }, 3000);
-    }
+    if (gameState.status === "waiting") startGame();
   }, [gameState.status, startGame]);
 
   // Get current player's stats
   const currentPlayer = username && gameState.players[username];
-  const timeLeft = gameState.endTime
-    ? Math.max(0, Math.ceil((gameState.endTime - Date.now()) / 1000))
-    : 40; // Default time if game hasn't started
+
+  useEffect(() => {
+    if (gameState.endTime) {
+      const initialTimeLeft = Math.max(
+        0,
+        Math.ceil((gameState.endTime - Date.now()) / 1000)
+      );
+      setTimeLeft(initialTimeLeft);
+      const timerInterval = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 0) {
+            clearInterval(timerInterval);
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timerInterval);
+    }
+  }, [gameState.endTime]);
 
   useEffect(() => {
     if (gameState.status === "finished" && currentPlayer)
