@@ -1,16 +1,8 @@
 "use client";
-
-import { div } from "framer-motion/client";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { motion } from "framer-motion";
-import { State } from "@/hooks/useEngine";
+import { ResultsProps } from "@/types/types";
 
-interface ResultsProps {
-  errors: number;
-  accuracy: number;
-  wpm: number;
-  state: State;
-}
 export const Results: React.FC<ResultsProps> = ({
   state,
   errors,

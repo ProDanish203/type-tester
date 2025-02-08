@@ -1,5 +1,5 @@
 "use client";
-import { Results } from "@/components/shared/Results";
+import { ResultsDialog } from "@/components/shared/ResultsDialog";
 import {
   CountdownTimer,
   DisplayWords,
@@ -9,7 +9,7 @@ import { useMultiplayerEngine } from "@/hooks/useMultiplayerEngine";
 import { calculateAccuracyPercentage } from "@/lib/helpers";
 import { getUsername } from "@/lib/utils";
 import { GameState } from "@/types/types";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface MultiplayerGameProps {
   gameState: GameState;
@@ -20,6 +20,7 @@ export const MultiplayerGame: React.FC<MultiplayerGameProps> = ({
   gameState,
   setPlayersProgresss,
 }) => {
+  const [displayResults, setDisplayResults] = useState(false);
   const username = getUsername();
   const { typed, cursor, startGame } = useMultiplayerEngine();
 
@@ -51,6 +52,11 @@ export const MultiplayerGame: React.FC<MultiplayerGameProps> = ({
     ? Math.max(0, Math.ceil((gameState.endTime - Date.now()) / 1000))
     : 40; // Default time if game hasn't started
 
+  useEffect(() => {
+    if (gameState.status === "finished" && currentPlayer)
+      setDisplayResults(true);
+  }, [gameState.status, currentPlayer]);
+
   return (
     <div className="container mt-10">
       <div className="flex items-center justify-between mb-4">
@@ -61,17 +67,18 @@ export const MultiplayerGame: React.FC<MultiplayerGameProps> = ({
         <UserTyping userInput={typed} words={gameState.words} />
       </div>
       {gameState.status === "finished" && currentPlayer && (
-        <div className="mt-10">
-          <Results
-            state="finish"
-            accuracy={calculateAccuracyPercentage(
-              currentPlayer.errors,
-              currentPlayer.cursor
-            )}
-            errors={currentPlayer.errors}
-            wpm={currentPlayer.wpm}
-          />
-        </div>
+        <ResultsDialog
+          state="finish"
+          accuracy={calculateAccuracyPercentage(
+            currentPlayer.errors,
+            currentPlayer.cursor
+          )}
+          errors={currentPlayer.errors}
+          wpm={currentPlayer.wpm}
+          open={displayResults}
+          setOpen={setDisplayResults}
+          players={gameState.players}
+        />
       )}
     </div>
   );

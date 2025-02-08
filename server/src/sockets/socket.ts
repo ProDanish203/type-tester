@@ -102,7 +102,7 @@ io.on("connection", (socket) => {
       setTimeout(() => {
         gameState.status = "finished";
         io.to(data.roomId).emit("gameEnded", { gameState });
-      }, 60000); // 40 seconds
+      }, 10000); // 40 seconds
     }
   });
 

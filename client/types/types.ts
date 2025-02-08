@@ -1,3 +1,5 @@
+import { State } from "@/hooks/useEngine";
+
 export interface GameState {
   words: string;
   startTime: number | null;
@@ -12,4 +14,11 @@ export interface GameState {
     };
   };
   status: "waiting" | "running" | "finished";
+}
+
+export interface ResultsProps {
+  errors: number;
+  accuracy: number;
+  wpm: number;
+  state: State;
 }

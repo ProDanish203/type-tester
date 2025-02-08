@@ -4,7 +4,7 @@ import { GameState } from "../types/types";
 export class RoomManager {
   private rooms: Map<string, GameState> = new Map();
   private readonly WORD_COUNT = 30;
-  private readonly GAME_DURATION = 60;
+  private readonly GAME_DURATION = 10;
 
   generateWords(): string {
     return faker.word.words(this.WORD_COUNT).toLowerCase();
