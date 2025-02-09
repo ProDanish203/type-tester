@@ -10,14 +10,14 @@ const isKeyboardCodeAllowed = (code: string) => {
   );
 };
 
-export const useTyping = (enabled: boolean) => {
+export const useTyping = (enabled: boolean, modalOpen: boolean) => {
   const [cursor, setCursor] = useState(0);
   const [typed, setTyped] = useState("");
   const totalTyped = useRef(0);
 
   const keyboardHandler = useCallback(
     ({ key, code }: KeyboardEvent) => {
-      if (!enabled || !isKeyboardCodeAllowed(code)) return;
+      if (!enabled || !isKeyboardCodeAllowed(code) || modalOpen) return;
 
       switch (key) {
         case "Backspace":
@@ -33,7 +33,7 @@ export const useTyping = (enabled: boolean) => {
           totalTyped.current += 1;
       }
     },
-    [cursor, enabled]
+    [cursor, enabled, modalOpen]
   );
 
   const clearTyped = useCallback(() => {

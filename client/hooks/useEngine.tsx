@@ -9,14 +9,15 @@ export type State = "start" | "run" | "finish";
 const NUMBER_OF_WORDS = 30;
 const COUNTDOWN_SECONDS = 40;
 
-export const useEngine = () => {
+export const useEngine = ({ modalOpen }: { modalOpen: boolean }) => {
   const [state, setState] = useState<State>("start");
   const { words, updateWords } = useWords(NUMBER_OF_WORDS);
   const { timeLeft, resetCountdown, startCountdown } =
     useCountdownTimer(COUNTDOWN_SECONDS);
 
   const { typed, totalTyped, cursor, clearTyped, resetTotalTyped } = useTyping(
-    state !== "finish"
+    state !== "finish",
+    modalOpen
   );
 
   const isStarted = state === "start" && cursor > 0;

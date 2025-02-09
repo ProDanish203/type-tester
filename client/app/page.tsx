@@ -12,10 +12,9 @@ import { calculateAccuracyPercentage } from "@/lib/helpers";
 import { useState } from "react";
 
 export default function Home() {
-  const { state, words, timeLeft, typed, wpm, totalTyped, errors, restart } =
-    useEngine();
-
   const [modalOpen, setModalOpen] = useState(false);
+  const { state, words, timeLeft, typed, wpm, totalTyped, errors, restart } =
+    useEngine({ modalOpen });
 
   return (
     <main className="min-h-screen w-full lg:px-10 md:px-5 px-4 bg-bgCol text-text">

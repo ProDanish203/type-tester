@@ -24,6 +24,7 @@ async function main() {
   console.log("Reading from CSV...");
   readFromCsv(READ_FROM_CSV_PATH, FILE_PATH);
 
+  await browser.close();
   console.log("Data scraped successfully");
 }
 
