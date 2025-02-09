@@ -23,18 +23,22 @@ import { GameState } from "@/types/types";
 
 interface MultiplayerModalProps {
   open: boolean;
-  setOpen: (open: boolean) => void;
+  setOpen?: (open: boolean) => void;
+  isJoin?: boolean;
+  paramsRoomId?: string;
 }
 
 export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
   open,
   setOpen,
+  isJoin,
+  paramsRoomId,
 }) => {
   const { onlineUsers, socket, setJoinedUsers, setPlayers, setGameState } =
     useSocket();
   const router = useRouter();
   const [username, setUsername] = useState("");
-  const [roomId, setRoomId] = useState("");
+  const [roomId, setRoomId] = useState(paramsRoomId || "");
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
@@ -84,10 +88,10 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
       if (!username || !roomId)
         return toast.error("Please fill in all fields.");
       localStorage.setItem("roomId", roomId);
-      router.push(`/multiplayer/${roomId}`);
-
       socket.emit("joinRoom", { roomId, username });
       socket.on("userJoinedRoom", handleUserJoined);
+
+      router.push(`/multiplayer/${roomId}`);
     } catch (err) {
       toast.error("An error occurred. Please try again later.");
       console.log(err);
@@ -107,15 +111,23 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
     });
   };
 
+  const handleCancel = () => {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem("roomId");
+    router.push("/");
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen} defaultOpen={false}>
-      <DialogTrigger
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-md cursor-pointer"
-      >
-        <ArrowRightLeft size={14} />
-        <span>Switch to Multiplayer</span>
-      </DialogTrigger>
+      {!isJoin && (
+        <DialogTrigger
+          onClick={() => setOpen && setOpen(true)}
+          className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-md cursor-pointer"
+        >
+          <ArrowRightLeft size={14} />
+          <span>Switch to Multiplayer</span>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between gap-2 w-full">
@@ -146,12 +158,22 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
             </div>
 
             <div className="flex items-center justify-end gap-x-2 mt-2">
-              <DialogClose
-                type="button"
-                className={cn(buttonVariants({ variant: "destructive" }))}
-              >
-                Cancel
-              </DialogClose>
+              {isJoin ? (
+                <Button
+                  onClick={handleCancel}
+                  type="button"
+                  className={cn(buttonVariants({ variant: "destructive" }))}
+                >
+                  Cancel
+                </Button>
+              ) : (
+                <DialogClose
+                  type="button"
+                  className={cn(buttonVariants({ variant: "destructive" }))}
+                >
+                  Cancel
+                </DialogClose>
+              )}
 
               <Button type="submit">Next</Button>
             </div>
@@ -183,29 +205,44 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
                 }
                 minLength={1}
                 maxLength={30}
+                className={cn("", isJoin && "cursor-not-allowed")}
+                disabled={isJoin}
               />
             </div>
-
-            <Separator />
-            <p className="text-center text-lg">OR</p>
-            <div className="flex gap-y-3 flex-col justify-center">
-              <Button
-                type="button"
-                onClick={handleCreateRoom}
-                variant={"secondary"}
-                className="mb-2"
-              >
-                Create New Room
-              </Button>
-            </div>
+            {!isJoin && (
+              <>
+                <Separator />
+                <p className="text-center text-lg">OR</p>
+                <div className="flex gap-y-3 flex-col justify-center">
+                  <Button
+                    type="button"
+                    onClick={handleCreateRoom}
+                    variant={"secondary"}
+                    className="mb-2"
+                  >
+                    Create New Room
+                  </Button>
+                </div>
+              </>
+            )}
 
             <div className="flex items-center justify-end gap-x-2 mt-2">
-              <DialogClose
-                type="button"
-                className={cn(buttonVariants({ variant: "destructive" }))}
-              >
-                Cancel
-              </DialogClose>
+              {isJoin ? (
+                <Button
+                  onClick={handleCancel}
+                  type="button"
+                  className={cn(buttonVariants({ variant: "destructive" }))}
+                >
+                  Cancel
+                </Button>
+              ) : (
+                <DialogClose
+                  type="button"
+                  className={cn(buttonVariants({ variant: "destructive" }))}
+                >
+                  Cancel
+                </DialogClose>
+              )}
 
               <Button type="submit">Join Room</Button>
             </div>

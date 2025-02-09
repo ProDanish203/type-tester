@@ -59,7 +59,7 @@ export const GameStartingIndicator: React.FC<GameStartingIndicatorProps> = ({
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(
-      `${window.location.origin}/multiplayer/${roomId}`
+      `${window.location.origin}/joinroom/${roomId}`
     );
     toast.info("Link copied to clipboard!");
   };
@@ -108,18 +108,20 @@ export const GameStartingIndicator: React.FC<GameStartingIndicatorProps> = ({
             </div>
           )}
         </div>
-        <DialogFooter>
-          <p
-            className="text-center text-sm text-muted-foreground"
-            onClick={handleCopyLink}
-          >
-            Share the{" "}
-            <span className="text-green-500 font-medium cursor-pointer">
-              Link
-            </span>{" "}
-            with your friends to play together!{" "}
-          </p>
-        </DialogFooter>
+        {loadingState === "waiting" && (
+          <DialogFooter>
+            <p
+              className="text-center text-sm text-muted-foreground"
+              onClick={handleCopyLink}
+            >
+              Share the{" "}
+              <span className="text-green-500 font-medium cursor-pointer">
+                Link
+              </span>{" "}
+              with your friends to play together!{" "}
+            </p>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

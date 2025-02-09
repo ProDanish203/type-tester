@@ -7,6 +7,7 @@ import {
   RestartButton,
 } from "@/components/shared/TypingHelpers";
 import { UserTyping } from "@/components/shared/UserTyping";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useEngine } from "@/hooks";
 import { calculateAccuracyPercentage } from "@/lib/helpers";
 import { useState } from "react";
@@ -28,8 +29,19 @@ export default function Home() {
             <RestartButton handleReset={restart} />
           </div>
           <div className="relative text-4xl font-bold font-mono tracking-wider leading-snug mx-auto w-full break-all">
-            <DisplayWords words={words} />
-            <UserTyping userInput={typed} words={words} />
+            {!words ? (
+              <div className="flex flex-col gap-2 justify-center">
+                <Skeleton className="w-full h-10" />
+                <Skeleton className="w-full h-10" />
+                <Skeleton className="w-full h-10" />
+                <Skeleton className="w-1/2 h-10" />
+              </div>
+            ) : (
+              <>
+                <DisplayWords words={words} />
+                <UserTyping userInput={typed} words={words} />
+              </>
+            )}
           </div>
 
           <div className="mt-10">
