@@ -108,7 +108,7 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
   };
 
   return (
-    <Dialog open={true} onOpenChange={setOpen} defaultOpen={false}>
+    <Dialog open={open} onOpenChange={setOpen} defaultOpen={false}>
       <DialogTrigger
         onClick={() => setOpen(true)}
         className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-md cursor-pointer"

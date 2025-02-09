@@ -8,14 +8,10 @@ import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MultiplayerGame } from "./_components/MultiplayerGame";
 import { GameStartingIndicator } from "@/components/shared/GameStartingIndicator";
+import { GameState, PlayersProgress } from "@/types/types";
 
 interface MultiplayerPageClientProps {
   roomId: string;
-}
-
-interface PlayersProgress {
-  username: string;
-  score: number;
 }
 
 const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
@@ -39,7 +35,7 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
       roomId: string;
       username: string;
       usersInRoom: string[];
-      gameState: any;
+      gameState: GameState | null;
     }) => {
       const { username, usersInRoom, gameState } = data;
       const storedUsername = getUsername();
@@ -56,7 +52,7 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
         return prev;
       });
     },
-    []
+    [setGameState, setJoinedUsers, setPlayers]
   );
 
   useEffect(() => {
@@ -66,7 +62,7 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
     return () => {
       socket.off("userJoinedRoom", handleUserJoined);
     };
-  }, [socket]);
+  }, [socket, handleUserJoined]);
 
   const leaveRoom = () => {
     if (typeof window === "undefined" || !socket) return;
@@ -78,7 +74,6 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
 
     if (!storedUsername || !storedRoomId) return;
 
-    // TODO: create this event on the server
     socket.emit("leaveRoom", {
       roomId: storedRoomId,
       username: storedUsername,
@@ -92,24 +87,44 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
   return (
     <div className="flex min-h-screen">
       {/* Sidebar to show players */}
-      <aside className="max-md:hidden md:py-4 py-8 bg-bgCol border-r-2 min-w-[250px] max-w-[250px] h-screen w-full">
-        <h2 className="md:px-6 px-4 text-xl font-medium border-b-2 pb-5 pt-1 mb-4">
-          Game ID: <span className="font-bold text-primaryCol">{roomId}</span>
-        </h2>
-        <div className="px-4">
-          <h3 className="text-lg font-semibold">Players: </h3>
-          <div className="flex flex-col gap-y-2 mt-4">
-            {players.map((player) => (
-              <div key={player} className="flex items-center gap-x-2">
-                <span className="text-lg font-medium">{player}</span>
-                {player === localStorage.getItem("username") && (
-                  <span className="text-sm font-light text-gray-400">
-                    (You)
-                  </span>
-                )}
-              </div>
-            ))}
+      <aside className="flex flex-col max-md:hidden md:py-4 py-8 bg-bgCol border-r-2 min-w-[250px] max-w-[250px] h-screen">
+        {/* Main content container */}
+        <div className="flex flex-col h-full">
+          {/* Header section */}
+          <h2 className="md:px-6 px-4 text-xl font-medium border-b-2 pb-5 pt-1 mb-4">
+            Game ID: <span className="font-bold text-primaryCol">{roomId}</span>
+          </h2>
+
+          {/* Players section - will scroll if content overflows */}
+          <div className="px-4 flex-1 overflow-y-auto">
+            <h3 className="text-lg font-semibold">Players: </h3>
+            <div className="flex flex-col gap-y-2 mt-4">
+              {players.map((player) => (
+                <div key={player} className="flex items-center gap-x-2">
+                  <span className="text-lg font-medium">{player}</span>
+                  {player === localStorage.getItem("username") && (
+                    <span className="text-sm font-light text-gray-400">
+                      (You)
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
+
+          {/* Footer section - will stay at bottom */}
+          <footer className="mt-auto pt-8 px-4">
+            <p className="text-center text-sm text-gray-500">
+              Made with <span className="text-primaryCol">❤️</span> by <br />
+              <a
+                href="https://github.com/ProDanish203"
+                target="_blank"
+                className="text-primaryCol"
+              >
+                Danish Siddiqui
+              </a>
+            </p>
+          </footer>
         </div>
       </aside>
 

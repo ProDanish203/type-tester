@@ -9,12 +9,12 @@ import { useMultiplayerEngine } from "@/hooks/useMultiplayerEngine";
 import { GAME_DURATION } from "@/lib/constants";
 import { calculateAccuracyPercentage } from "@/lib/helpers";
 import { getUsername } from "@/lib/utils";
-import { GameState } from "@/types/types";
+import { GameState, PlayersProgress } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
 
 interface MultiplayerGameProps {
   gameState: GameState;
-  setPlayersProgresss: any;
+  setPlayersProgresss: (playerProgress: PlayersProgress[]) => void;
 }
 
 export const MultiplayerGame: React.FC<MultiplayerGameProps> = ({
@@ -29,10 +29,15 @@ export const MultiplayerGame: React.FC<MultiplayerGameProps> = ({
 
   const updateProgress = useCallback(() => {
     const progressPlayers = Object.entries(gameState.players).map(
-      ([username, stats]) => ({
-        username,
-        score: (stats.cursor / gameState.words.length) * 100,
-      })
+      ([username, stats]) => {
+        const effectiveProgress = Math.max(0, stats.cursor - stats.errors);
+        const score = (effectiveProgress / gameState.words.length) * 100;
+
+        return {
+          username,
+          score: Math.max(0, Math.min(100, score)),
+        };
+      }
     );
     setPlayersProgresss(progressPlayers);
   }, [gameState.players, gameState.words.length, setPlayersProgresss]);

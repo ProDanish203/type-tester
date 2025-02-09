@@ -109,6 +109,13 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Create a leave room event
+  socket.on("leaveRoom", (data: { roomId: string; username: string }) => {
+    const { roomId, username } = data;
+    roomManager.removePlayerFromRoom(roomId, username);
+    socket.leave(roomId);
+  });
+
   // Handle the disconnect event from client
   socket.on("disconnect", () => {
     username && delete userSocketMap[username];

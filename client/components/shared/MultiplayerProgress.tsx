@@ -13,14 +13,12 @@ export const MultiplayerProgress: React.FC<MultiplayerProgressProps> = ({
     // The track width is considered 100%
     // Convert score to a percentage of track width
     // If score is 100, car should be at the end of track
-    const progressPercentage = score <= 10 ? 10 : score;
-
+    const OFFSET = 7;
     // Calculate left position (start from left side)
     // As score increases, left position decreases
-    const leftPosition = 100 - progressPercentage;
-
+    const leftPosition = 100 - score - OFFSET;
     return {
-      left: `${leftPosition - 2}%`,
+      left: `${leftPosition - OFFSET}%`,
     };
   };
 

@@ -60,7 +60,6 @@ export const ResultsDialog: React.FC<Props> = ({
 
     if (!storedUsername || !storedRoomId) return;
 
-    // TODO: create this event on the server
     socket.emit("leaveRoom", {
       roomId: storedRoomId,
       username: storedUsername,
@@ -69,12 +68,21 @@ export const ResultsDialog: React.FC<Props> = ({
     router.push("/");
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Prevent all keyboard events from propagating
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
         onPointerDown={(e) => e.preventDefault()}
+        onKeyDown={handleKeyDown}
+        autoFocus={false}
+        className="focus:outline-none"
       >
         <DialogHeader>
           <DialogTitle className="text-white text-2xl font-semibold tracking-wider">
@@ -112,12 +120,18 @@ export const ResultsDialog: React.FC<Props> = ({
               setOpen(false);
               leaveRoom();
             }}
+            // Prevent keyboard focus and navigation
+            tabIndex={-1}
+            onKeyDown={(e) => e.preventDefault()}
             className="w-full"
           >
             Leave Game
           </Button>
           <Button
             onClick={handlePlayAgain}
+            tabIndex={-1}
+            // Prevent keyboard focus and navigation
+            onKeyDown={(e) => e.preventDefault()}
             className="bg-green-500 hover:bg-green-600 w-full"
           >
             Play again

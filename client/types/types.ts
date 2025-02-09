@@ -22,3 +22,8 @@ export interface ResultsProps {
   wpm: number;
   state: State;
 }
+
+export interface PlayersProgress {
+  username: string;
+  score: number;
+}

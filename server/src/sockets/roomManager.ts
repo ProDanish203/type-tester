@@ -52,6 +52,18 @@ export class RoomManager {
     return gameState;
   }
 
+  removePlayerFromRoom(roomId: string, username: string): GameState | null {
+    const gameState = this.rooms.get(roomId);
+    if (!gameState) return null;
+
+    delete gameState.players[username];
+
+    // If no players left, delete the room
+    if (Object.keys(gameState.players).length === 0) this.deleteRoom(roomId);
+
+    return gameState;
+  }
+
   startGame(roomId: string): GameState | null {
     const gameState = this.rooms.get(roomId);
     if (!gameState) return null;
