@@ -24,7 +24,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get("/", (req, res) => {
-  res.json({ message: "Hello World", success: true });
+  res.json({
+    message: "Health check - KeyStorm API working correctly",
+    success: true,
+  });
 });
 
 app.get("/words", async (req: Request, res: Response, next: NextFunction) => {
