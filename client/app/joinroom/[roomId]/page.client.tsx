@@ -6,7 +6,7 @@ export const JoinRoomPageClient = ({ roomId }: { roomId: string }) => {
   useEffect(() => {
     if (typeof window === "undefined") return;
     localStorage.setItem("roomId", roomId);
-  }, []);
+  }, [roomId]);
 
   return <MultiplayerModal open={true} isJoin paramsRoomId={roomId} />;
 };
