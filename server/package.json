@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npm run clean && npx tsc",
+    "build": "npm run clean && npx tsc && shx cp -r src/data dist/",
     "clean": "npx rimraf dist",
     "start": "npm run build && node dist/index.js",
     "dev": "npm run build && concurrently \"npx tsc -w\" \"nodemon --exec ts-node src/index.ts\""
@@ -30,6 +30,7 @@
     "@types/express": "^5.0.0",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.13.0",
+    "shx": "^0.3.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   }
