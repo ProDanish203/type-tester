@@ -1,12 +1,11 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { faker } from "@faker-js/faker";
 import { fetchWords } from "@/API/words";
 import { toast } from "sonner";
 
-export const generateWords = (count: number): string => {
-  return faker.word.words(count).toLowerCase();
-};
+// export const generateWords = (count: number): string => {
+//   return faker.word.words(count).toLowerCase();
+// };
 
 export const useWords = (count: number) => {
   const [words, setWords] = useState<string>("");

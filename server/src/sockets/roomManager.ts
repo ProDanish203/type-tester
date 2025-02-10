@@ -1,5 +1,5 @@
-import { faker } from "@faker-js/faker";
 import { GameState } from "../types/types";
+import { getWords } from "../utils/helpers";
 
 export class RoomManager {
   private rooms: Map<string, GameState> = new Map();
@@ -7,13 +7,15 @@ export class RoomManager {
   private readonly GAME_DURATION = 20;
   private readonly GAME_START_DELAY = 5;
 
-  generateWords(): string {
-    return faker.word.words(this.WORD_COUNT).toLowerCase();
+  async generateWords(): Promise<string | null> {
+    return await getWords(this.WORD_COUNT);
   }
 
-  createRoom(roomId: string): GameState {
+  async createRoom(roomId: string): Promise<GameState | null> {
+    const words = await this.generateWords();
+    if (!words) return null;
     const gameState: GameState = {
-      words: this.generateWords(),
+      words,
       startTime: null,
       endTime: null,
       players: {},

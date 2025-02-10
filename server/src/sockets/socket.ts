@@ -3,6 +3,9 @@ import { Server } from "socket.io";
 import http from "http";
 import { generateUniqueRoomId } from "../utils/helpers";
 import { RoomManager } from "./roomManager";
+import { config } from "dotenv";
+
+config();
 
 const app = express();
 const server = http.createServer(app);
@@ -32,11 +35,11 @@ io.on("connection", (socket) => {
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   // Create a room for the user, new game
-  socket.on("createRoom", (data: { username: string }) => {
+  socket.on("createRoom", async (data: { username: string }) => {
     const { username } = data;
     userSocketMap[username] = socket.id;
     const roomId = generateUniqueRoomId();
-    const gameState = roomManager.createRoom(roomId);
+    const gameState = await roomManager.createRoom(roomId);
     roomManager.addPlayerToRoom(roomId, username);
     socket.join(roomId);
 
