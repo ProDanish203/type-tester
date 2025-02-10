@@ -12,7 +12,7 @@ const GAME_START_DELAY = 5;
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.FRONTEND_BASE_URL,
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
