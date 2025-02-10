@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "npm run clean && npx tsc",
+    "clean": "npx rimraf dist",
     "start": "npm run build && node dist/index.js",
-    "build": "rimraf dist && npx tsc",
     "dev": "npm run build && concurrently \"npx tsc -w\" \"nodemon --exec ts-node src/index.ts\""
   },
   "keywords": [],
