@@ -3,8 +3,8 @@ import { getWords } from "../utils/helpers";
 
 export class RoomManager {
   private rooms: Map<string, GameState> = new Map();
-  private readonly WORD_COUNT = 20;
-  private readonly GAME_DURATION = 10;
+  private readonly WORD_COUNT = 50;
+  private readonly GAME_DURATION = 40;
   private readonly GAME_START_DELAY = 5;
 
   async generateWords(): Promise<string | null> {

@@ -10,7 +10,7 @@ config();
 const app = express();
 const server = http.createServer(app);
 
-const GAME_DURATION = 10;
+const GAME_DURATION = 40;
 const GAME_START_DELAY = 5;
 
 const io = new Server(server, {
