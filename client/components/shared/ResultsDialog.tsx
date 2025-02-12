@@ -48,7 +48,13 @@ export const ResultsDialog: React.FC<Props> = ({
 
   const username = getUsername();
 
-  const handlePlayAgain = () => {};
+  const handlePlayAgain = () => {
+    if (typeof window === "undefined" || !socket) return;
+    const storedRoomId = getRoomId();
+    if (!storedRoomId) return;
+
+    socket.emit("playAgain", { roomId: storedRoomId });
+  };
 
   const leaveRoom = () => {
     if (typeof window === "undefined" || !socket) return;

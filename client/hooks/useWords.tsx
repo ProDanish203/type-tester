@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchWords } from "@/API/words";
 import { toast } from "sonner";
 
@@ -9,22 +9,27 @@ import { toast } from "sonner";
 
 export const useWords = (count: number) => {
   const [words, setWords] = useState<string>("");
+  const [updatedWords, setUpdatedWords] = useState<string>("");
 
   const getWords = async () => {
-    const { response, success } = await fetchWords(count);
-    if (!success) return toast.error(response || "something went wrong");
-    setWords(response);
-    return response;
+    const [newWords, updatedWords] = await Promise.all([
+      fetchWords(count),
+      fetchWords(count),
+    ]);
+    if (!newWords.success || !updatedWords.success)
+      return toast.error(newWords.response || "Something went wrong");
+    setWords(newWords.response);
+    setUpdatedWords(updatedWords.response);
+    return newWords.response;
   };
 
   useEffect(() => {
     getWords();
   }, [count]);
 
-  const updateWords = useCallback(async () => {
-    const updatedWords = await getWords();
+  const updateWords = () => {
     setWords(updatedWords);
-  }, [count]);
+  };
 
   return { words, updateWords };
 };

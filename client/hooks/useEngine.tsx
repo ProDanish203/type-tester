@@ -6,7 +6,7 @@ import { useTyping } from "./useTyping";
 import { countErrors } from "@/lib/helpers";
 
 export type State = "start" | "run" | "finish";
-const NUMBER_OF_WORDS = 30;
+const NUMBER_OF_WORDS = 40;
 const COUNTDOWN_SECONDS = 40;
 
 export const useEngine = ({ modalOpen }: { modalOpen: boolean }) => {

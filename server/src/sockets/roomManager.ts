@@ -3,8 +3,8 @@ import { getWords } from "../utils/helpers";
 
 export class RoomManager {
   private rooms: Map<string, GameState> = new Map();
-  private readonly WORD_COUNT = 30;
-  private readonly GAME_DURATION = 20;
+  private readonly WORD_COUNT = 20;
+  private readonly GAME_DURATION = 10;
   private readonly GAME_START_DELAY = 5;
 
   async generateWords(): Promise<string | null> {
@@ -103,6 +103,27 @@ export class RoomManager {
       const wordsTyped = (cursor - player.errors) / 5;
       player.wpm = Math.max(0, Math.round((wordsTyped / elapsedTime) * 60));
     }
+
+    return gameState;
+  }
+
+  async playAgain(roomId: string): Promise<GameState | null> {
+    const gameState = this.rooms.get(roomId);
+    if (!gameState) return null;
+    const words = await this.generateWords();
+    if (!words) return null;
+    gameState.words = words;
+    gameState.status = "waiting";
+    gameState.startTime = null;
+    gameState.endTime = null;
+
+    Object.values(gameState.players).forEach((player) => {
+      player.typed = "";
+      player.cursor = 0;
+      player.wpm = 0;
+      player.errors = 0;
+      player.finished = false;
+    });
 
     return gameState;
   }

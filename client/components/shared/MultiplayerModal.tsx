@@ -10,7 +10,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRightLeft } from "lucide-react";
+import { ArrowRightLeft, Loader2Icon } from "lucide-react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
@@ -37,6 +37,7 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
   const { onlineUsers, socket, setJoinedUsers, setPlayers, setGameState } =
     useSocket();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [roomId, setRoomId] = useState(paramsRoomId || "");
   const [currentStep, setCurrentStep] = useState(0);
@@ -49,10 +50,11 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
 
   const saveUsername = (e: FormEvent) => {
     e.preventDefault();
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !socket) return;
     if (!username) return toast.error("Please enter a username.");
 
     localStorage.setItem("username", username);
+    socket.emit("addUser", { username });
     setCurrentStep(1);
   };
 
@@ -100,6 +102,7 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
 
   const handleCreateRoom = () => {
     if (!socket || !username) return;
+    setIsLoading(true);
     socket.emit("createRoom", { username });
 
     socket.on("roomCreated", (data: { roomId: string; username: string }) => {
@@ -109,6 +112,7 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
       setPlayers([username]);
       router.push(`/multiplayer/${roomId}`);
     });
+    setIsLoading(false);
   };
 
   const handleCancel = () => {
@@ -219,8 +223,13 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
                     onClick={handleCreateRoom}
                     variant={"secondary"}
                     className="mb-2"
+                    disabled={isLoading}
                   >
-                    Create New Room
+                    {isLoading ? (
+                      <Loader2Icon className="animate-spin stroke-white" />
+                    ) : (
+                      "Create Room"
+                    )}
                   </Button>
                 </div>
               </>
@@ -244,7 +253,17 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
                 </DialogClose>
               )}
 
-              <Button type="submit">Join Room</Button>
+              <Button
+                type="submit"
+                disabled={isLoading && roomId.length > 0}
+                className="min-w-24"
+              >
+                {isLoading && roomId.length > 0 ? (
+                  <Loader2Icon className="animate-spin stroke-black" />
+                ) : (
+                  "Join Room"
+                )}
+              </Button>
             </div>
           </form>
         ) : null}

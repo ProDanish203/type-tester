@@ -10,7 +10,7 @@ config();
 const app = express();
 const server = http.createServer(app);
 
-const GAME_DURATION = 20;
+const GAME_DURATION = 10;
 const GAME_START_DELAY = 5;
 
 const io = new Server(server, {
@@ -33,6 +33,13 @@ io.on("connection", (socket) => {
   if (username) userSocketMap[username] = socket.id;
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+  // Add a new user if it is a new user that is providing the username
+  socket.on("addUser", (data: { username: string }) => {
+    const { username } = data;
+    userSocketMap[username] = socket.id;
+    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  });
 
   // Create a room for the user, new game
   socket.on("createRoom", async (data: { username: string }) => {
@@ -101,6 +108,20 @@ io.on("connection", (socket) => {
 
   socket.on("startGame", (data: { roomId: string }) => {
     const gameState = roomManager.startGame(data.roomId);
+    if (gameState) {
+      io.to(data.roomId).emit("gameStarted", { gameState });
+
+      // Set up game end timeout
+      setTimeout(() => {
+        gameState.status = "finished";
+        io.to(data.roomId).emit("gameEnded", { gameState });
+      }, (GAME_DURATION + GAME_START_DELAY) * 1000);
+    }
+  });
+
+  // Play again
+  socket.on("playAgain", async (data: { roomId: string }) => {
+    const gameState = await roomManager.playAgain(data.roomId);
     if (gameState) {
       io.to(data.roomId).emit("gameStarted", { gameState });
 
