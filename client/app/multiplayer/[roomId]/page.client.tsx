@@ -117,7 +117,7 @@ const MultiplayerPageClient: React.FC<MultiplayerPageClientProps> = ({
             <p className="text-center text-sm text-gray-500">
               Made with <span className="text-primaryCol">❤️</span> by <br />
               <a
-                href="https://github.com/ProDanish203"
+                href="https://danish-siddiqui.vercel.app/"
                 target="_blank"
                 className="text-primaryCol"
               >
