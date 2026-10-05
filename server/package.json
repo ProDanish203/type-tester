@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npm run clean && npx tsc && shx cp -r src/data dist/",
+    "build": "node init && npm run clean && npx tsc && shx cp -r src/data dist/",
     "clean": "npx rimraf dist",
-    "start": "npm run build && node dist/index.js",
-    "dev": "npm run build && concurrently \"npx tsc -w\" \"nodemon --exec ts-node src/index.ts\""
+    "start": "node init && npm run build && node dist/index.js",
+    "dev": "node init && npm run build && concurrently \"npx tsc -w\" \"nodemon --exec ts-node src/index.ts\""
   },
   "keywords": [],
   "author": "",
